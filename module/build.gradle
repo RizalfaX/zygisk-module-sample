@@ -35,12 +35,12 @@ afterEvaluate {
     android.libraryVariants.forEach { variant ->
         def variantCapped = variant.name.capitalize()
         def variantLowered = variant.name.toLowerCase()
+		def magiskDir = file("$outDir/magisk_module_$variantLowered")
 
         def prepareMagiskFilesTask = task("prepareMagiskFiles${variantCapped}", type: Sync) {
             dependsOn("assemble$variantCapped")
 
             def templatePath = "$rootDir/template/magisk_module"
-            def magiskDir = file("$outDir/magisk_module_$variantLowered")
 
             into magiskDir
             from(templatePath) {
