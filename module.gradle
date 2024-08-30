@@ -1,0 +1,9 @@
+ext {
+    moduleLibraryName = "zygisk_sample"
+    magiskModuleId = "zygisk_module_sample"
+    moduleName = "Zygisk Module Sample"
+    moduleAuthor = "Guest"
+    moduleDescription = "A sample project fo.r building Zygisk modules."
+    moduleVersion = "v1.0"
+    moduleVersionCode = 1
+}
