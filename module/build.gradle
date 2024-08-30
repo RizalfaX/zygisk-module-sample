@@ -2,8 +2,11 @@ import org.apache.tools.ant.filters.FixCrLfFilter
 import java.nio.file.Paths
 import java.nio.file.Files
 
-apply plugin: 'com.android.library'
-apply from: file(rootProject.file('module.gradle'))
+plugins {
+    id 'com.android.library'
+}
+
+include(file('module.gradle'))
 
 android {
     compileSdkVersion rootProject.ext.targetSdkVersion
