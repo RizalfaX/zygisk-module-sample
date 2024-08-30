@@ -2,7 +2,8 @@ apply plugin: 'idea'
 
 idea.module {
     excludeDirs += file('out')
-    resourceDirs += file('template', 'scripts')
+    resourceDirs += file('template')
+    resourceDirs += file('scripts')
 }
 
 buildscript {
