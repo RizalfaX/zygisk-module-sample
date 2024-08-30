@@ -6,7 +6,7 @@ plugins {
     id 'com.android.library'
 }
 
-apply(from = file(rootProject.file('module.gradle')))
+apply from: file(rootProject.file('module.gradle'))
 
 android {
     compileSdkVersion rootProject.ext.targetSdkVersion

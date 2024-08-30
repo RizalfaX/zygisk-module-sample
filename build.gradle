@@ -1,16 +1,20 @@
-apply plugin: 'idea'
+plugins {
+    id 'idea'
+}
 
-idea.module {
-    excludeDirs += file('out')
-    resourceDirs += file('template')
-    resourceDirs += file('scripts')
+idea {
+    module {
+        excludeDirs += file('out')
+        resourceDirs += files('template', 'scripts')
+    }
+}
+
+repositories {
+    mavenCentral()
+    google()
 }
 
 buildscript {
-    repositories {
-        mavenCentral()
-        google()
-    }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.2.2'
     }
@@ -26,7 +30,6 @@ allprojects {
 ext {
     minSdkVersion = 23
     targetSdkVersion = 33
-
     outDir = file("$rootDir/out")
 }
 
