@@ -1,4 +1,5 @@
-import org.apache.tools.ant.DirectoryScanner
-DirectoryScanner.removeDefaultExclude('**/.gitattributes')
-
 include ':module'
+
+import org.apache.tools.ant.DirectoryScanner
+
+DirectoryScanner.removeDefaultExclude('**/.gitattributes')
