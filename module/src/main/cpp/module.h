@@ -3,6 +3,6 @@
 
 #define TARGET_PACKAGE "com.aim.racing"
 
-void module();
+void module(const char* target_data_dir);
 
 #endif
