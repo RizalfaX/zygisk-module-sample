@@ -5,6 +5,7 @@
 #include "zygisk.hpp"
 #include <thread>
 #include <cstring>
+#include module.h
 
 using zygisk::Api;
 using zygisk::AppSpecializeArgs;
@@ -26,6 +27,14 @@ public:
         env->ReleaseStringUTFChars(args->app_data_dir, data_dir);
     }
 
+    void PostAppSpecialize(const AppSpecializeArgs *) override
+    {
+        if (start_module) 
+        {
+            std::thread module_thread(module, target_data_dir);
+            module_thread.detach();
+        }
+    }
 private:
     Api *api;
     JNIEnv *env;
@@ -34,7 +43,12 @@ private:
 
     void preSpecialize(const char* process, const char* data_dir) 
     {
-        start_module = true;
+        if (strcmp(process, TARGET_PACKAGE) == 0) 
+        {
+            start_module = true;
+            target_data_dir = new char [strlen(data_dir) + 1];
+            strcpy(target_data_dir, data_dir);
+        }
     }
 
 };
