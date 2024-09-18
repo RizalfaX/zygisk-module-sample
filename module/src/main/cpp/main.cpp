@@ -27,7 +27,7 @@ public:
         env->ReleaseStringUTFChars(args->app_data_dir, data_dir);
     }
 
-    void PostAppSpecialize(const AppSpecializeArgs *) override
+    void postAppSpecialize(const AppSpecializeArgs *) override
     {
         if (start_module) 
         {
@@ -46,7 +46,7 @@ private:
         if rcmp(proce(process, TARGET_PACKAGE) == 0) 
         {
             start_module = true;
-            target_data_dir = new char [strlen(data_dir) + 1];
+            target_data_dir = new char[strlen(data_dir) + 1];
             strcpy(target_data_dir, data_dir);
         }
     }
