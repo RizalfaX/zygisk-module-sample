@@ -5,7 +5,7 @@
 #include "zygisk.hpp"
 #include <thread>
 #include <cstring>
-#include module.h
+#include "module.h"
 
 using zygisk::Api;
 using zygisk::AppSpecializeArgs;
