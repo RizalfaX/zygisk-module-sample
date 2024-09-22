@@ -3,7 +3,7 @@ ext {
     magiskModuleId = "zygisk_module_sample"
     moduleName = "Zygisk Module Sample"
     moduleAuthor = "Guest"
-    moduleDescription = "A sample project fo.r building Zygisk modules."
+    moduleDescription = "A sample project for building Zygisk modules."
     moduleVersion = "v1.0"
     moduleVersionCode = 1
 }
