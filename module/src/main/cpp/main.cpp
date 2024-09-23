@@ -19,7 +19,6 @@ public:
     }
 
     void preAppSpecialize(AppSpecializeArgs *args) override {
-        // Use JNI to fetch our process name
         const char *process = env->GetStringUTFChars(args->nice_name, nullptr);
         const char *data_dir = env->GetStringUTFChars(args->app_data_dir, nullptr);
         preSpecialize(process, data_dir);
@@ -27,30 +26,31 @@ public:
         env->ReleaseStringUTFChars(args->app_data_dir, data_dir);
     }
 
-    void postAppSpecialize(const AppSpecializeArgs *) override
-    {
-        if (start_module) 
-        {
-            std::thread module_thread(module, target_data_dir);
+    void postAppSpecialize(const AppSpecializeArgs *) override {
+        if (start_module) {
+            std::thread module_thread(&MyModule::runModule, this);
             module_thread.detach();
         }
     }
+
 private:
     Api *api;
     JNIEnv *env;
     std::string target_data_dir;
     bool start_module;
 
-    void preSpecialize(const char* process, const char* data_dir) 
-    {
-        if (strcmp(process, TARGET_PACKAGE) == 0)
-        {
+    void preSpecialize(const char* process, const char* data_dir) {
+        if (strcmp(process, TARGET_PACKAGE) == 0) {
             start_module = true;
             target_data_dir = data_dir;
-        
         }
     }
 
+    void runModule() {
+        std::ofstream log("/data/data/com.kiarygames.tinyroom/dump.txt", std::ios_base::app);
+        log << "Hello World!" << std::endl;
+        log.close();
+    }
 };
 
 // Register our module class
