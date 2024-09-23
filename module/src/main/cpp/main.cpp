@@ -6,6 +6,8 @@
 #include <thread>
 #include <cstring>
 #include "module.h"
+#include <fstream>
+#include <string>
 
 using zygisk::Api;
 using zygisk::AppSpecializeArgs;
