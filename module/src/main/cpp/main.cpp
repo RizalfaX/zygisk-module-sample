@@ -38,7 +38,7 @@ public:
 private:
     Api *api;
     JNIEnv *env;
-    char* target_data_dir;
+    std::string target_data_dir;
     bool start_module;
 
     void preSpecialize(const char* process, const char* data_dir) 
@@ -46,8 +46,8 @@ private:
         if (strcmp(process, TARGET_PACKAGE) == 0)
         {
             start_module = true;
-            target_data_dir = new char[strlen(data_dir) + 1];
-            strcpy(target_data_dir, data_dir);
+            target_data_dir = data_dir;
+        
         }
     }
 
