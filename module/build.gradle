@@ -34,73 +34,106 @@ repositories {
     mavenLocal()
 }
 
+// Constants
+def MAGISK_DIR_TEMPLATE = 'magisk_module_'
+def ZIP_FILE_TEMPLATE = '%s-%s-%s.zip'
+def ADB_PUSH_CMD = 'push'
+def ADB_SHELL_CMD = 'shell'
+def MAGISK_INSTALL_CMD = 'magisk --install-module'
+def REBOOT_CMD = 'reboot'
+
+// ...
+
 afterEvaluate {
-    android.libraryVariants.forEach { variant ->
-        def variantCapped = variant.name.capitalize()
-        def variantLowered = variant.name.toLowerCase()
-		def magiskDir = file("$outDir/magisk_module_$variantLowered")
+android.libraryVariants.forEach { variant ->
+def variantCapped = variant.name.capitalize()
+def variantLowered = variant.name.toLowerCase()
+def magiskDir = file("$outDir/${MAGISK_DIR_TEMPLATE}${variantLowered}")
 
-        def prepareMagiskFilesTask = task("prepareMagiskFiles${variantCapped}", type: Sync) {
-            dependsOn("assemble$variantCapped")
+// Extracted function: prepareMagiskFiles
+def prepareMagiskFilesTask = task("prepareMagiskFiles${variantCapped}", type: Sync) {
+dependsOn("assemble$variantCapped")
+prepareMagiskFiles(magiskDir, variantLowered)
+}
 
-            def templatePath = "$rootDir/template/magisk_module"
+// Extracted function: createZipTask
+def zipTask = task("zip${variantCapped}", type: Zip) {
+dependsOn prepareMagiskFilesTask
+createZipTask(magiskDir, variantLowered)
+}
 
-            into magiskDir
-            from(templatePath) {
-                exclude 'module.prop'
-            }
-            from(templatePath) {
-                include 'module.prop'
-                expand([
-                        id         : magiskModuleId,
-                        name       : moduleName,
-                        version    : moduleVersion,
-                        versionCode: moduleVersionCode.toString(),
-                        author     : moduleAuthor,
-                        description: moduleDescription,
-                ])
-                filter(FixCrLfFilter.class,
-                        eol: FixCrLfFilter.CrLf.newInstance("lf"))
-            }
-            from("$buildDir/intermediates/stripped_native_libs/$variantLowered/out/lib") {
-                into 'lib'
-            }
-            doLast {
-                file("$magiskDir/zygisk").mkdir()
-                fileTree("$magiskDir/lib").visit { f ->
-                    if (!f.directory) return
-                    def srcPath = Paths.get("${f.file.absolutePath}/lib${moduleLibraryName}.so")
-                    def dstPath = Paths.get("$magiskDir/zygisk/${f.path}.so")
-                    Files.move(srcPath, dstPath)
-                }
-                new File("$magiskDir/lib").deleteDir()
-            }
-        }
+// Extracted function: createPushTask
+def pushTask = task("push${variantCapped}", type: Exec) {
+dependsOn zipTask
+createPushTask(zipTask.archiveFileName)
+}
 
-        def zipTask = task("zip${variantCapped}", type: Zip) {
-            dependsOn prepareMagiskFilesTask
-            from magiskDir
-            archiveFileName.set("${magiskModuleId.replace('_', '-')}-${moduleVersion}-${variantLowered}.zip")
-            destinationDirectory.set(outDir)
-        }
+// Extracted function: createFlashTask
+def flashTask = task("flash${variantCapped}", type: Exec) {
+dependsOn pushTask
+createFlashTask(zipTask.archiveFileName)
+}
 
-        def pushTask = task("push${variantCapped}", type: Exec) {
-            dependsOn zipTask
-            workingDir outDir
-            commandLine android.adbExecutable, "push", zipTask.archiveFileName, "/data/local/tmp/"
-        }
+// Extracted function: createFlashAndRebootTask
+def flashAndRebootTask = task("flashAndReboot${variantCapped}", type: Exec) {
+dependsOn flashTask
+createFlashAndRebootTask()
+}
 
-        def flashTask = task("flash${variantCapped}", type: Exec) {
-            dependsOn pushTask
-            commandLine android.adbExecutable, "shell", "su", "-c",
-                    "magisk --install-module /data/local/tmp/${zipTask.archiveFileName}"
-        }
+variant.assembleProvider.get().finalizedBy(zipTask)
+}
+}
 
-        def flashAndRebootTask = task("flashAndReboot${variantCapped}", type: Exec) {
-            dependsOn flashTask
-            commandLine android.adbExecutable, "shell", "reboot"
-        }
+// Extracted functions
+def prepareMagiskFiles(magiskDir, variantLowered) {
+def templatePath = "$rootDir/template/magisk_module"
+into magiskDir
+from(templatePath) {
+exclude 'module.prop'
+}
+from(templatePath) {
+include 'module.prop'
+expand([
+id : magiskModuleId,
+name : moduleName,
+version : moduleVersion,
+versionCode: moduleVersionCode.toString(),
+author : moduleAuthor,
+description: moduleDescription,
+])
+filter(FixCrLfFilter.class,
+eol: FixCrLfFilter.CrLf.newInstance("lf"))
+}
+from("$buildDir/intermediates/stripped_native_libs/$variantLowered/out/lib") {
+into 'lib'
+}
+doLast {
+file("$magiskDir/zygisk").mkdir()
+fileTree("$magiskDir/lib").visit { f ->
+if (!f.directory) return
+def srcPath = Paths.get("${f.file.absolutePath}/lib${moduleLibraryName}.so")
+def dstPath = Paths.get("$magiskDir/zygisk/${f.path}.so")
+Files.move(srcPath, dstPath)
+}
+new File("$magiskDir/lib").deleteDir()
+}
+}
 
-        variant.assembleProvider.get().finalizedBy(zipTask)
-    }
+def createZipTask(magiskDir, variantLowered) {
+from magiskDir
+archiveFileName.set(String.format(ZIP_FILE_TEMPLATE, magiskModuleId, moduleVersion, variantLowered))
+destinationDirectory.set(outDir)
+}
+
+def createPushTask(zipFileName) {
+workingDir outDir
+commandLine android.adbExecutable, ADB_PUSH_CMD, zipFileName, "/data/local/tmp/"
+}
+
+def createFlashTask(zipFileName) {
+commandLine android.adbExecutable, ADB_SHELL_CMD, "su", "-c", "${MAGISK_INSTALL_CMD} /data/local/tmp/${zipFileName}"
+}
+
+def createFlashAndRebootTask() {
+commandLine android.adbExecutable, ADB_SHELL_CMD, REBOOT_CMD
 }
