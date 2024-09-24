@@ -16,7 +16,6 @@ using zygisk::ServerSpecializeArgs;
 
 class MyModule : public zygisk::ModuleBase {
 public:
-    MyModule() : start_module(false) {}
 
     void onLoad(Api *api, JNIEnv *env) override {
         this->api = api;
