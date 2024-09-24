@@ -12,8 +12,7 @@ set(C_FLAGS "-Werror=format -fdata-sections -ffunction-sections")
 set(CXX_FLAGS "${CXX_FLAGS} -fno-exceptions -fno-rtti")
 
 add_library(${MODULE_NAME} SHARED 
-	main.cpp
-	module.cpp)
+	main.cpp)
 
 find_library(android android)
 target_link_libraries(${MODULE_NAME}
