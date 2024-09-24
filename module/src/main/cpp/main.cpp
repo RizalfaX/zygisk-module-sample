@@ -9,6 +9,8 @@
 #include <fstream>
 #include <string>
 
+#define TARGET_PACKAGE "com.kiarygames.tinyroom"
+
 using zygisk::Api;
 using zygisk::AppSpecializeArgs;
 using zygisk::ServerSpecializeArgs;
