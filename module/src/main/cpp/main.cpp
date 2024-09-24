@@ -5,7 +5,6 @@
 #include "zygisk.hpp"
 #include <thread>
 #include <cstring>
-#include "module.h"
 #include <fstream>
 #include <string>
 
