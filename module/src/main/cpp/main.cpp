@@ -16,6 +16,8 @@ using zygisk::ServerSpecializeArgs;
 
 class MyModule : public zygisk::ModuleBase {
 public:
+    MyModule() : start_module(false) {}
+
     void onLoad(Api *api, JNIEnv *env) override {
         this->api = api;
         this->env = env;
@@ -31,7 +33,7 @@ public:
 
     void postAppSpecialize(const AppSpecializeArgs *) override {
         if (start_module) {
-            std::thread module_thread(&MyModule::runModule, this);
+            std::thread module_thread(&MyModule::runModule, this, target_data_dir);
             module_thread.detach();
         }
     }
@@ -39,7 +41,6 @@ public:
 private:
     Api *api;
     JNIEnv *env;
-    std::string target_data_dir;
     bool start_module;
 
     void preSpecialize(const char* process, const char* data_dir) {
@@ -49,7 +50,7 @@ private:
         }
     }
 
-    void runModule() {
+    void runModule(const std::string& target_data_dir) {
         std::string log_path = target_data_dir + "/dump.txt";
         std::ofstream log(log_path, std::ios_base::app);
         log << "Hello World!" << std::endl;
