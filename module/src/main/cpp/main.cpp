@@ -50,7 +50,8 @@ private:
     }
 
     void runModule() {
-        std::ofstream log("/data/data/com.kiarygames.tinyroom/dump.txt", std::ios_base::app);
+        std::string log_path = target_data_dir + "/dump.txt";
+        std::ofstream log(log_path, std::ios_base::app);
         log << "Hello World!" << std::endl;
         log.close();
     }
